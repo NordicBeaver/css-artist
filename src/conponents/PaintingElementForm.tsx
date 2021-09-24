@@ -1,6 +1,6 @@
 import { FormControl, FormLabel } from '@chakra-ui/form-control';
 import { VStack } from '@chakra-ui/layout';
-import { SliderFilledTrack, SliderTrack } from '@chakra-ui/react';
+import { HStack, SliderFilledTrack, SliderTrack } from '@chakra-ui/react';
 import { Slider, SliderThumb } from '@chakra-ui/slider';
 import React from 'react';
 import { PAINTING_HEIGHT, PAINTING_WIDTH } from '../constants';
@@ -27,43 +27,82 @@ export default function PaintingElementForm({ element, onChange }: PaintingEleme
     onChange?.({ ...element, height: value });
   };
 
+  const handleColorRedSliderChange = (value: number) => {
+    onChange?.({ ...element, backgroundRed: value });
+  };
+
+  const handleColorGreenSliderChange = (value: number) => {
+    onChange?.({ ...element, backgroundGreen: value });
+  };
+
+  const handleColorBlueSliderChange = (value: number) => {
+    onChange?.({ ...element, backgroundBlue: value });
+  };
+
   return (
     <VStack>
       <FormControl>
-        <FormLabel marginBottom={0}>Position X: {element.posX}</FormLabel>
-        <Slider min={0} max={PAINTING_WIDTH} value={element.posX} onChange={handlePositionXSliderChange}>
-          <SliderTrack>
-            <SliderFilledTrack></SliderFilledTrack>
-          </SliderTrack>
-          <SliderThumb></SliderThumb>
-        </Slider>
+        <FormLabel>
+          Position (X: {element.posX}, Y: {element.posY})
+        </FormLabel>
+        <HStack spacing={5}>
+          <Slider min={0} max={PAINTING_WIDTH} value={element.posX} onChange={handlePositionXSliderChange}>
+            <SliderTrack>
+              <SliderFilledTrack></SliderFilledTrack>
+            </SliderTrack>
+            <SliderThumb></SliderThumb>
+          </Slider>
+          <Slider min={0} max={PAINTING_HEIGHT} value={element.posY} onChange={handlePositionYSliderChange}>
+            <SliderTrack>
+              <SliderFilledTrack></SliderFilledTrack>
+            </SliderTrack>
+            <SliderThumb></SliderThumb>
+          </Slider>
+        </HStack>
       </FormControl>
       <FormControl>
-        <FormLabel marginBottom={0}>Position Y: {element.posY}</FormLabel>
-        <Slider min={0} max={PAINTING_HEIGHT} value={element.posY} onChange={handlePositionYSliderChange}>
-          <SliderTrack>
-            <SliderFilledTrack></SliderFilledTrack>
-          </SliderTrack>
-          <SliderThumb></SliderThumb>
-        </Slider>
+        <FormLabel>
+          Size (Width: {element.width}, Height: {element.height})
+        </FormLabel>
+        <HStack spacing={5}>
+          <Slider min={0} max={PAINTING_WIDTH} value={element.width} onChange={handleWidthSliderChange}>
+            <SliderTrack>
+              <SliderFilledTrack></SliderFilledTrack>
+            </SliderTrack>
+            <SliderThumb></SliderThumb>
+          </Slider>
+          <Slider min={0} max={PAINTING_HEIGHT} value={element.height} onChange={handleHeightSliderChange}>
+            <SliderTrack>
+              <SliderFilledTrack></SliderFilledTrack>
+            </SliderTrack>
+            <SliderThumb></SliderThumb>
+          </Slider>
+        </HStack>
       </FormControl>
       <FormControl>
-        <FormLabel marginBottom={0}>Width: {element.width}</FormLabel>
-        <Slider min={0} max={PAINTING_WIDTH} value={element.width} onChange={handleWidthSliderChange}>
-          <SliderTrack>
-            <SliderFilledTrack></SliderFilledTrack>
-          </SliderTrack>
-          <SliderThumb></SliderThumb>
-        </Slider>
-      </FormControl>
-      <FormControl>
-        <FormLabel marginBottom={0}>Height: {element.height}</FormLabel>
-        <Slider min={0} max={PAINTING_HEIGHT} value={element.height} onChange={handleHeightSliderChange}>
-          <SliderTrack>
-            <SliderFilledTrack></SliderFilledTrack>
-          </SliderTrack>
-          <SliderThumb></SliderThumb>
-        </Slider>
+        <FormLabel>
+          Color (R: {element.backgroundRed}, G: {element.backgroundGreen}, B: {element.backgroundBlue})
+        </FormLabel>
+        <HStack spacing={5}>
+          <Slider min={0} max={255} value={element.backgroundRed} onChange={handleColorRedSliderChange}>
+            <SliderTrack>
+              <SliderFilledTrack></SliderFilledTrack>
+            </SliderTrack>
+            <SliderThumb></SliderThumb>
+          </Slider>
+          <Slider min={0} max={255} value={element.backgroundGreen} onChange={handleColorGreenSliderChange}>
+            <SliderTrack>
+              <SliderFilledTrack></SliderFilledTrack>
+            </SliderTrack>
+            <SliderThumb></SliderThumb>
+          </Slider>
+          <Slider min={0} max={255} value={element.backgroundBlue} onChange={handleColorBlueSliderChange}>
+            <SliderTrack>
+              <SliderFilledTrack></SliderFilledTrack>
+            </SliderTrack>
+            <SliderThumb></SliderThumb>
+          </Slider>
+        </HStack>
       </FormControl>
     </VStack>
   );
