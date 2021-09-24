@@ -1,23 +1,14 @@
-import { Box, Button, Heading } from '@chakra-ui/react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Box, Button, Heading, Text } from '@chakra-ui/react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PAINTING_HEIGHT, PAINTING_WIDTH } from '../constants';
-import { createRandomPainting, generatePaintingHtml, Painting } from '../painting';
-import CustomHtml from './CustomHtml';
+import { createRandomPainting, generatePaintingHtml } from '../painting';
 import { renderHtml } from '../render';
-
-function testPainting() {
-  const painting: Painting = {
-    elements: [
-      { posX: 10, posY: 10, height: 20, width: 20, backgroundRed: 255, backgroundGreen: 0, backgroundBlue: 0 },
-      { posX: 40, posY: 60, height: 50, width: 10, backgroundRed: 0, backgroundGreen: 255, backgroundBlue: 0 },
-    ],
-  };
-  return painting;
-}
+import CustomHtml from './CustomHtml';
 
 export default function TestRendererPage() {
-  const [painting, setPainting] = useState(testPainting);
+  const [painting, setPainting] = useState(createRandomPainting);
   const [paintingHtml, setPaintingHtml] = useState('');
+  const [perfTestResult, setPerfTestResult] = useState('');
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -44,15 +35,46 @@ export default function TestRendererPage() {
     context.putImageData(imageData, 0, 0);
   };
 
+  const handlePerformanceTestClick = async () => {
+    if (!paintingHtml) return;
+
+    const testLength = 1000;
+
+    setPerfTestResult(`Testing with ${testLength} iterations.`);
+
+    const t0 = performance.now();
+    for (let i = 0; i < testLength; i++) {
+      await renderHtml(paintingHtml);
+    }
+    const t1 = performance.now();
+
+    setPerfTestResult(`Done. ${testLength} iterations took ${t1 - t0}ms.`);
+  };
+
   return (
     <Box>
       <Heading as="h2" size="lg" marginBottom={8}>
         Renderer
       </Heading>
-      <Button onClick={handleRandomPaintingClick}>Random Painting</Button>
-      <CustomHtml html={paintingHtml}></CustomHtml>
-      <Button onClick={handleRenderClick}>Render</Button>
-      <canvas ref={canvasRef} width={PAINTING_WIDTH} height={PAINTING_HEIGHT}></canvas>
+      <Button onClick={handleRandomPaintingClick} marginBottom={4}>
+        Random Painting
+      </Button>
+      <CustomHtml html={paintingHtml} marginBottom={4}></CustomHtml>
+      <Button onClick={handleRenderClick} marginBottom={4}>
+        Render
+      </Button>
+      <Box marginBottom={4}>
+        <canvas
+          ref={canvasRef}
+          width={PAINTING_WIDTH}
+          height={PAINTING_HEIGHT}
+          style={{ border: '1px solid black' }}
+        ></canvas>
+      </Box>
+      <Button onClick={handlePerformanceTestClick} marginBottom={4}>
+        Performance Test
+      </Button>
+      <Text>{perfTestResult}</Text>
     </Box>
   );
 }
