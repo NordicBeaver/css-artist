@@ -11,8 +11,10 @@ function App() {
     <ChakraProvider>
       <BrowserRouter>
         <Grid templateColumns="400px 1fr" height="100%">
-          <Sidebar></Sidebar>
-          <Box>
+          <Box padding={10}>
+            <Sidebar></Sidebar>
+          </Box>
+          <Box padding={10}>
             <Switch>
               <Route path="/test-parameters">
                 <TestParametersPage></TestParametersPage>
