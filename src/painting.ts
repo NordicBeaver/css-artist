@@ -12,22 +12,22 @@ export interface Painting {
   elements: PaintingElement[];
 }
 
-function generateElementHtml(parameters: PaintingElement): string {
+function generateElementHtml(element: PaintingElement): string {
   const styleProperties = [
     `position: absolute;`,
-    `top: ${parameters.posY}px;`,
-    `left: ${parameters.posX}px;`,
-    `width: ${parameters.width}px;`,
-    `height: ${parameters.height}px;`,
-    `background-color: rgb(${parameters.backgroundRed}, ${parameters.backgroundGreen}, ${parameters.backgroundBlue});`,
+    `top: ${element.posY}px;`,
+    `left: ${element.posX}px;`,
+    `width: ${element.width}px;`,
+    `height: ${element.height}px;`,
+    `background-color: rgb(${element.backgroundRed}, ${element.backgroundGreen}, ${element.backgroundBlue});`,
   ];
   const style = styleProperties.join(' ');
   const html = `<div style="${style}"></div>`;
   return html;
 }
 
-export function generatePaintingHtml(parameters: Painting) {
+export function generatePaintingHtml(painting: Painting) {
   // Pass empty string to join, because its ',' by default.
-  const html = parameters.elements.map((elementParams) => generateElementHtml(elementParams)).join('');
+  const html = painting.elements.map((element) => generateElementHtml(element)).join('');
   return html;
 }
