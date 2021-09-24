@@ -12,37 +12,25 @@ export interface PaintingElementFormProps {
 }
 export default function PaintingElementForm({ element, onChange }: PaintingElementFormProps) {
   const handlePositionXSliderChange = (value: number) => {
-    onChange?.({
-      ...element,
-      posX: value,
-    });
+    onChange?.({ ...element, posX: value });
   };
 
   const handlePositionYSliderChange = (value: number) => {
-    onChange?.({
-      ...element,
-      posY: value,
-    });
+    onChange?.({ ...element, posY: value });
   };
 
   const handleWidthSliderChange = (value: number) => {
-    onChange?.({
-      ...element,
-      width: value,
-    });
+    onChange?.({ ...element, width: value });
   };
 
   const handleHeightSliderChange = (value: number) => {
-    onChange?.({
-      ...element,
-      height: value,
-    });
+    onChange?.({ ...element, height: value });
   };
 
   return (
     <VStack>
       <FormControl>
-        <FormLabel>Position X: {element.posX}</FormLabel>
+        <FormLabel marginBottom={0}>Position X: {element.posX}</FormLabel>
         <Slider min={0} max={PAINTING_WIDTH} value={element.posX} onChange={handlePositionXSliderChange}>
           <SliderTrack>
             <SliderFilledTrack></SliderFilledTrack>
@@ -51,7 +39,7 @@ export default function PaintingElementForm({ element, onChange }: PaintingEleme
         </Slider>
       </FormControl>
       <FormControl>
-        <FormLabel>Position Y: {element.posY}</FormLabel>
+        <FormLabel marginBottom={0}>Position Y: {element.posY}</FormLabel>
         <Slider min={0} max={PAINTING_HEIGHT} value={element.posY} onChange={handlePositionYSliderChange}>
           <SliderTrack>
             <SliderFilledTrack></SliderFilledTrack>
@@ -60,7 +48,7 @@ export default function PaintingElementForm({ element, onChange }: PaintingEleme
         </Slider>
       </FormControl>
       <FormControl>
-        <FormLabel>Width: {element.width}</FormLabel>
+        <FormLabel marginBottom={0}>Width: {element.width}</FormLabel>
         <Slider min={0} max={PAINTING_WIDTH} value={element.width} onChange={handleWidthSliderChange}>
           <SliderTrack>
             <SliderFilledTrack></SliderFilledTrack>
@@ -69,7 +57,7 @@ export default function PaintingElementForm({ element, onChange }: PaintingEleme
         </Slider>
       </FormControl>
       <FormControl>
-        <FormLabel>Height: {element.height}</FormLabel>
+        <FormLabel marginBottom={0}>Height: {element.height}</FormLabel>
         <Slider min={0} max={PAINTING_HEIGHT} value={element.height} onChange={handleHeightSliderChange}>
           <SliderTrack>
             <SliderFilledTrack></SliderFilledTrack>
