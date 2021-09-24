@@ -12,6 +12,9 @@ export default function Sidebar() {
       <Link as={RouterLink} to="/test-parameters">
         Test Parameters
       </Link>
+      <Link as={RouterLink} to="/test-renderer">
+        Test Renderer
+      </Link>
     </VStack>
   );
 }
