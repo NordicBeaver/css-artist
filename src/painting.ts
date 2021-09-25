@@ -1,6 +1,6 @@
 import random from 'random';
 import { PAINTING_HEIGHT, PAINTING_WIDTH } from './constants';
-import { clamp } from 'lodash';
+import { clamp, cloneDeep } from 'lodash';
 
 export interface PaintingElement {
   posX: number;
@@ -63,4 +63,36 @@ export function generatePaintingHtml(painting: Painting) {
   // Pass empty string to join, because its ',' by default.
   const html = painting.elements.map((element) => generateElementHtml(element)).join('');
   return html;
+}
+
+export function mutate(painting: Painting) {
+  const posRate = 20;
+  const colorRate = 20;
+  const mutationChanceThreshold = 0.9;
+
+  const newPainting = cloneDeep(painting);
+  newPainting.elements.forEach((e) => {
+    if (Math.random() > mutationChanceThreshold) {
+      e.posX = clamp(e.posX + Math.round(random.normal(0, posRate)()), 0, PAINTING_WIDTH);
+    }
+    if (Math.random() > mutationChanceThreshold) {
+      e.posY = clamp(e.posY + Math.round(random.normal(0, posRate)()), 0, PAINTING_HEIGHT);
+    }
+    if (Math.random() > mutationChanceThreshold) {
+      e.width = clamp(e.width + Math.round(random.normal(0, posRate)()), 0, PAINTING_WIDTH - e.posX);
+    }
+    if (Math.random() > mutationChanceThreshold) {
+      e.height = clamp(e.height + Math.round(random.normal(0, posRate)()), 0, PAINTING_HEIGHT - e.posY);
+    }
+    if (Math.random() > mutationChanceThreshold) {
+      e.backgroundRed = clamp(e.backgroundRed + Math.round(random.normal(0, colorRate)()), 0, 255);
+    }
+    if (Math.random() > mutationChanceThreshold) {
+      e.backgroundGreen = clamp(e.backgroundGreen + Math.round(random.normal(0, colorRate)()), 0, 255);
+    }
+    if (Math.random() > mutationChanceThreshold) {
+      e.backgroundBlue = clamp(e.backgroundBlue + Math.round(random.normal(0, colorRate)()), 0, 255);
+    }
+  });
+  return newPainting;
 }
