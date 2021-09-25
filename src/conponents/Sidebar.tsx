@@ -15,6 +15,9 @@ export default function Sidebar() {
       <Link as={RouterLink} to="/test-renderer">
         Test Renderer
       </Link>
+      <Link as={RouterLink} to="/test-mutations">
+        Test Mutations
+      </Link>
     </VStack>
   );
 }

@@ -1,6 +1,6 @@
 import { Box, Code, Grid, Heading } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
-import { generatePaintingHtml, Painting } from '../painting';
+import React, { useState } from 'react';
+import { Painting, usePaintingHtml } from '../painting';
 import CustomHtml from './CustomHtml';
 import PaintingForm from './PaintingForm';
 
@@ -16,12 +16,7 @@ function testPainting() {
 
 export default function TestParametersPage() {
   const [painting, setPainting] = useState(testPainting);
-  const [paintingHtml, setPaintingHtml] = useState('');
-
-  useEffect(() => {
-    const html = generatePaintingHtml(painting);
-    setPaintingHtml(html);
-  }, [painting]);
+  const paintingHtml = usePaintingHtml(painting);
 
   const handlePaintingFormChange = (newPainting: Painting) => {
     setPainting(newPainting);

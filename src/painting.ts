@@ -1,6 +1,7 @@
 import random from 'random';
 import { PAINTING_HEIGHT, PAINTING_WIDTH } from './constants';
 import { clamp, cloneDeep } from 'lodash';
+import { useEffect, useState } from 'react';
 
 export interface PaintingElement {
   posX: number;
@@ -65,7 +66,22 @@ export function generatePaintingHtml(painting: Painting) {
   return html;
 }
 
-export function mutate(painting: Painting) {
+export function usePaintingHtml(painting: Painting | null) {
+  const [paintingHtml, setPaintingHtml] = useState('');
+
+  useEffect(() => {
+    if (painting !== null) {
+      const html = generatePaintingHtml(painting);
+      setPaintingHtml(html);
+    } else {
+      setPaintingHtml('');
+    }
+  }, [painting]);
+
+  return paintingHtml;
+}
+
+export function mutatePainting(painting: Painting) {
   const posRate = 20;
   const colorRate = 20;
   const mutationChanceThreshold = 0.9;
