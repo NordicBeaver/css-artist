@@ -2,7 +2,7 @@ import { Box, Button, Heading, Text } from '@chakra-ui/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { PAINTING_HEIGHT, PAINTING_WIDTH } from '../constants';
 import { createRandomPainting, generatePaintingHtml } from '../painting';
-import { renderHtml } from '../render';
+import { renderHtml, renderHtmlBatch } from '../render';
 import CustomHtml from './CustomHtml';
 
 export default function TestRendererPage() {
@@ -43,8 +43,15 @@ export default function TestRendererPage() {
     setPerfTestResult(`Testing with ${testLength} iterations.`);
 
     const t0 = performance.now();
-    for (let i = 0; i < testLength; i++) {
-      await renderHtml(paintingHtml);
+
+    const batchSize = 100;
+    const htmls: string[] = [];
+    for (let i = 0; i < batchSize; i++) {
+      htmls.push(paintingHtml);
+    }
+
+    for (let i = 0; i < testLength / batchSize; i++) {
+      await renderHtmlBatch(htmls);
     }
     const t1 = performance.now();
 

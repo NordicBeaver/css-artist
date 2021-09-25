@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { createRandomPainting, generatePaintingHtml, mutatePainting, Painting, usePaintingHtml } from '../painting';
 import CustomHtml from './CustomHtml';
 import { range, zip, sortBy } from 'lodash';
-import { renderHtml } from '../render';
+import { renderHtml, renderHtmlBatch } from '../render';
 import CanvasImage from './CanvasImage';
 
 const generationSize = 1000;
@@ -30,7 +30,7 @@ function generateNextGeneration(paintings: Painting[]) {
 export function compareImages(data1: Uint8ClampedArray, data2: Uint8ClampedArray) {
   let diff = 0;
   for (let i = 0; i < data1.length; i++) {
-    let pixelDiff = -10; // data1[i] - data2[i];
+    let pixelDiff = data1[i] - data2[i];
     if (pixelDiff < 0) {
       pixelDiff = -pixelDiff;
     }
@@ -57,10 +57,13 @@ export default function HomePage() {
         : range(generationSize).map(() => createRandomPainting(2));
 
     const paintingsHtmls = paintings.map((p) => generatePaintingHtml(p));
-    let paintingsImageData: ImageData[] = [];
-    for (const html of paintingsHtmls) {
-      const data = await renderHtml(html);
-      paintingsImageData.push(data);
+
+    const batchSize = 100;
+    const paintingsImageData: ImageData[] = [];
+    for (let i = 0; i < paintingsHtmls.length / batchSize; i++) {
+      const htmlBatch = paintingsHtmls.slice(i * batchSize, (i + 1) * batchSize);
+      const imagesBatch = await renderHtmlBatch(htmlBatch);
+      paintingsImageData.push(...imagesBatch);
     }
 
     const paintinsRanked = zip(paintings, paintingsImageData).map(([painting, imageData]) => ({

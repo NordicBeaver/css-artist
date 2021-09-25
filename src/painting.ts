@@ -62,7 +62,8 @@ function generateElementHtml(element: PaintingElement): string {
 
 export function generatePaintingHtml(painting: Painting) {
   // Pass empty string to join, because its ',' by default.
-  const html = painting.elements.map((element) => generateElementHtml(element)).join('');
+  const elementsHtml = painting.elements.map((element) => generateElementHtml(element)).join('');
+  const html = `<div style="position: relative; width: ${PAINTING_WIDTH}px; height: ${PAINTING_HEIGHT}px; overflow: hidden">${elementsHtml}</div>`;
   return html;
 }
 
@@ -95,10 +96,10 @@ export function mutatePainting(painting: Painting) {
       e.posY = clamp(e.posY + Math.round(random.normal(0, posRate)()), 0, PAINTING_HEIGHT);
     }
     if (Math.random() > mutationChanceThreshold) {
-      e.width = clamp(e.width + Math.round(random.normal(0, posRate)()), 0, PAINTING_WIDTH - e.posX);
+      e.width = clamp(e.width + Math.round(random.normal(0, posRate)()), 10, PAINTING_WIDTH - e.posX);
     }
     if (Math.random() > mutationChanceThreshold) {
-      e.height = clamp(e.height + Math.round(random.normal(0, posRate)()), 0, PAINTING_HEIGHT - e.posY);
+      e.height = clamp(e.height + Math.round(random.normal(0, posRate)()), 10, PAINTING_HEIGHT - e.posY);
     }
     if (Math.random() > mutationChanceThreshold) {
       e.backgroundRed = clamp(e.backgroundRed + Math.round(random.normal(0, colorRate)()), 0, 255);
