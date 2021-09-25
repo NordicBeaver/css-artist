@@ -16,7 +16,7 @@ const readAsDataUrl = (svg: Blob) => {
   });
 };
 
-const drawImage = (context: CanvasRenderingContext2D, dataUrl: string) => {
+const drawImage = (dataUrl: string) => {
   return new Promise<HTMLImageElement>((resolve) => {
     const image = new Image();
     image.addEventListener('load', () => {
@@ -38,7 +38,7 @@ export const renderHtml = async (html: string) => {
 
   const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
   const dataUrl = await readAsDataUrl(svgBlob);
-  const image = await drawImage(context, dataUrl);
+  const image = await drawImage(dataUrl);
 
   context.clearRect(0, 0, PAINTING_WIDTH, PAINTING_HEIGHT);
   context.drawImage(image, 0, 0);
