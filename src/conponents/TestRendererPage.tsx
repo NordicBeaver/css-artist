@@ -38,7 +38,7 @@ export default function TestRendererPage() {
   const handlePerformanceTestClick = async () => {
     if (!paintingHtml) return;
 
-    const testLength = 1000;
+    const testLength = 10000;
 
     setPerfTestResult(`Testing with ${testLength} iterations.`);
 

@@ -1,16 +1,24 @@
 import { Box, Button, Code, Heading, HStack, Text, Wrap } from '@chakra-ui/react';
-import { range, sortBy, zip } from 'lodash';
+import { range, sortBy, zip, sum } from 'lodash';
+import random from 'random';
 import React, { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
-import { createRandomPainting, generatePaintingHtml, mutatePainting, Painting, usePaintingHtml } from '../painting';
+import {
+  createRandomPainting,
+  generatePaintingHtml,
+  mutatePainting,
+  Painting,
+  paintingsDiff,
+  usePaintingHtml,
+} from '../painting';
 import { renderFile, renderHtml, renderHtmlBatch } from '../render';
 import CanvasImage from './CanvasImage';
 
-const generationSize = 1000;
-const topCount = 100;
-const descendatsCount = 8;
-const randomCount = 100;
+const generationSize = 10000;
+const topCount = 10;
+const descendatsCount = 900;
+const randomCount = 1000;
 
-const paintingElementsCount = 2;
+const paintingElementsCount = 10;
 
 function generateNextGeneration(paintings: Painting[]) {
   const next: Painting[] = [];
@@ -22,7 +30,7 @@ function generateNextGeneration(paintings: Painting[]) {
     });
   });
   range(randomCount).forEach(() => {
-    const painting = createRandomPainting(2);
+    const painting = createRandomPainting(paintingElementsCount);
     next.push(painting);
   });
   return next;
@@ -38,6 +46,64 @@ export function compareImages(data1: Uint8ClampedArray, data2: Uint8ClampedArray
     diff += pixelDiff;
   }
   return diff;
+}
+
+async function getPaintingsImageData(paintings: Painting[]) {
+  const paintingsHtmls = paintings.map((p) => generatePaintingHtml(p));
+  const batchSize = 100;
+  const paintingsImageData: ImageData[] = [];
+  for (let i = 0; i < paintingsHtmls.length / batchSize; i++) {
+    const htmlBatch = paintingsHtmls.slice(i * batchSize, (i + 1) * batchSize);
+    const imagesBatch = await renderHtmlBatch(htmlBatch);
+    paintingsImageData.push(...imagesBatch);
+  }
+  return paintingsImageData;
+}
+
+async function sortPaintingsByScore(paintings: Painting[], originalImageData: ImageData) {
+  const paintingsImageData = await getPaintingsImageData(paintings);
+
+  const paintingsSorted: { painting: Painting; imageData: ImageData }[] = [];
+
+  const paintinsRanked = zip(paintings, paintingsImageData).map(([painting, imageData]) => ({
+    painting: painting!,
+    imageData: imageData!,
+    diff: compareImages(originalImageData.data, imageData!.data),
+  }));
+  const paintingsRankedSorted = sortBy(paintinsRanked, (d) => d.diff);
+  return paintingsRankedSorted;
+}
+
+async function selectTopPaintings(paintings: Painting[], originalImageData: ImageData) {
+  const paintingsImageData = await getPaintingsImageData(paintings);
+
+  const paintingsCompared = zip(paintings, paintingsImageData).map(([painting, imageData]) => ({
+    painting: painting!,
+    imageData: imageData!,
+    diff: compareImages(originalImageData.data, imageData!.data),
+  }));
+
+  const topPaintings: { painting: Painting; imageData: ImageData }[] = [];
+
+  for (let i = 0; i < topCount; i++) {
+    const paintingsScored = paintingsCompared.map((paintingScored) => {
+      const diffFromTop = sum(
+        topPaintings.map((topPainting) => paintingsDiff(topPainting.painting, paintingScored.painting))
+      );
+      const score = diffFromTop > 0 ? (1 / paintingScored.diff) * diffFromTop : 1 / paintingScored.diff;
+      return {
+        painting: paintingScored.painting,
+        imageData: paintingScored.imageData,
+        diff: paintingScored.diff,
+        diffFromTop: diffFromTop,
+        score: score,
+      };
+    });
+    const topPainting = sortBy(paintingsScored, (d) => -d.score)[0];
+    topPaintings.push(topPainting);
+  }
+
+  return topPaintings;
 }
 
 export default function HomePage() {
@@ -56,30 +122,15 @@ export default function HomePage() {
   const iterate = useCallback(async (currentGeneration: Painting[], originalImageData: ImageData) => {
     const paintings =
       currentGeneration.length > 0
-        ? generateNextGeneration(currentGeneration.slice(0, topCount))
+        ? generateNextGeneration(currentGeneration)
         : range(generationSize).map(() => createRandomPainting(paintingElementsCount));
 
-    const paintingsHtmls = paintings.map((p) => generatePaintingHtml(p));
+    await selectTopPaintings(paintings, originalImageData);
 
-    const batchSize = 100;
-    const paintingsImageData: ImageData[] = [];
-    for (let i = 0; i < paintingsHtmls.length / batchSize; i++) {
-      const htmlBatch = paintingsHtmls.slice(i * batchSize, (i + 1) * batchSize);
-      const imagesBatch = await renderHtmlBatch(htmlBatch);
-      paintingsImageData.push(...imagesBatch);
-    }
+    const topPaintings = await selectTopPaintings(paintings, originalImageData);
 
-    const paintinsRanked = zip(paintings, paintingsImageData).map(([painting, imageData]) => ({
-      painting: painting!,
-      imageData: imageData!,
-      diff: compareImages(originalImageData.data, imageData!.data),
-    }));
-    const paintingsRankedSorted = sortBy(paintinsRanked, (d) => d.diff);
-
-    setCurrentGeneration(paintingsRankedSorted.map((d) => d.painting));
-    setCurrentGenerationImageData(paintingsRankedSorted.slice(0, 8).map((d) => d.imageData));
-
-    console.log(paintingsRankedSorted[0].diff);
+    setCurrentGeneration(topPaintings.slice(0, topCount).map((d) => d.painting));
+    setCurrentGenerationImageData(topPaintings.slice(0, 8).map((d) => d.imageData));
   }, []);
 
   useEffect(() => {
@@ -99,6 +150,7 @@ export default function HomePage() {
       if (iterationsLeft > 0 && !isGenerating) {
         setIsGenerating(true);
         await iterate(currentGeneration!, originalPaintingImageData!);
+        // await new Promise((resolve) => setTimeout(resolve, 500));
         setIterationsLeft(iterationsLeft - 1);
         setIsGenerating(false);
       }

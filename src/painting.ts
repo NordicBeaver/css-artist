@@ -1,6 +1,6 @@
 import random from 'random';
 import { PAINTING_HEIGHT, PAINTING_WIDTH } from './constants';
-import { clamp, cloneDeep } from 'lodash';
+import { clamp, cloneDeep, zip, sum, sortBy } from 'lodash';
 import { useEffect, useState } from 'react';
 
 export interface PaintingElement {
@@ -87,10 +87,10 @@ export function usePaintingHtml(painting: Painting | null) {
 }
 
 export function mutatePainting(painting: Painting) {
-  const posRate = 20;
+  const posRate = 50;
   const colorRate = 20;
-  const zIndexRate = 20;
-  const mutationChanceThreshold = 0.9;
+  const zIndexRate = 10;
+  const mutationChanceThreshold = 0.8;
 
   const newPainting = cloneDeep(painting);
   newPainting.elements.forEach((e) => {
@@ -116,8 +116,30 @@ export function mutatePainting(painting: Painting) {
       e.backgroundBlue = clamp(e.backgroundBlue + Math.round(random.normal(0, colorRate)()), 0, 255);
     }
     if (Math.random() > mutationChanceThreshold) {
-      e.zIndex = clamp(e.posY + Math.round(random.normal(0, zIndexRate)()), -100, 100);
+      e.zIndex = clamp(e.zIndex + Math.round(random.normal(0, zIndexRate)()), -100, 100);
     }
   });
   return newPainting;
+}
+
+function elementsDiff(element1: PaintingElement, element2: PaintingElement) {
+  let diff = 0;
+  diff += Math.abs(element1.posX - element2.posX);
+  diff += Math.abs(element1.posY - element2.posY);
+  diff += Math.abs(element1.width - element2.width);
+  diff += Math.abs(element1.height - element2.height);
+  diff += Math.abs(element1.backgroundRed - element2.backgroundRed);
+  diff += Math.abs(element1.backgroundGreen - element2.backgroundGreen);
+  diff += Math.abs(element1.backgroundBlue - element2.backgroundBlue);
+  diff += Math.abs(element1.zIndex - element2.zIndex);
+  return diff;
+}
+
+export function paintingsDiff(painting1: Painting, painting2: Painting) {
+  const diffs = zip(
+    sortBy(painting1.elements, (e) => e.zIndex),
+    sortBy(painting2.elements, (e) => e.zIndex)
+  ).map(([element1, element2]) => elementsDiff(element1!, element2!));
+  const diff = sum(diffs);
+  return diff;
 }
