@@ -12,6 +12,10 @@ export interface PaintingElement {
   backgroundGreen: number;
   backgroundBlue: number;
   zIndex: number;
+  borderRadiusTL: number;
+  borderRadiusTR: number;
+  borderRadiusBR: number;
+  borderRadiusBL: number;
 }
 
 export interface Painting {
@@ -36,6 +40,10 @@ function createRandomElement() {
     backgroundGreen: Math.floor(Math.random() * 256),
     backgroundBlue: Math.floor(Math.random() * 256),
     zIndex: zIndex,
+    borderRadiusTL: random.int(0, 100),
+    borderRadiusTR: random.int(0, 100),
+    borderRadiusBR: random.int(0, 100),
+    borderRadiusBL: random.int(0, 100),
   };
   return element;
 }
@@ -52,12 +60,14 @@ export function createRandomPainting(elementsCount: number = 10) {
 function generateElementHtml(element: PaintingElement): string {
   const styleProperties = [
     `position: absolute;`,
+    `opacity: 50%;`,
     `top: ${element.posY}px;`,
     `left: ${element.posX}px;`,
     `width: ${element.width}px;`,
     `height: ${element.height}px;`,
     `background-color: rgb(${element.backgroundRed}, ${element.backgroundGreen}, ${element.backgroundBlue});`,
     `z-index: ${element.zIndex};`,
+    `border-radius: ${element.borderRadiusTL}% ${element.borderRadiusTR}% ${element.borderRadiusBR}% ${element.borderRadiusBL}%;`,
   ];
   const style = styleProperties.join(' ');
   const html = `<div style="${style}"></div>`;
@@ -90,6 +100,7 @@ export function mutatePainting(painting: Painting) {
   const posRate = 50;
   const colorRate = 20;
   const zIndexRate = 10;
+  const radiusRate = 10;
   const mutationChanceThreshold = 0.8;
 
   const newPainting = cloneDeep(painting);
@@ -117,6 +128,18 @@ export function mutatePainting(painting: Painting) {
     }
     if (Math.random() > mutationChanceThreshold) {
       e.zIndex = clamp(e.zIndex + Math.round(random.normal(0, zIndexRate)()), -100, 100);
+    }
+    if (Math.random() > mutationChanceThreshold) {
+      e.borderRadiusTL = clamp(e.borderRadiusTL + Math.round(random.normal(0, radiusRate)()), 0, 100);
+    }
+    if (Math.random() > mutationChanceThreshold) {
+      e.borderRadiusTR = clamp(e.borderRadiusTR + Math.round(random.normal(0, radiusRate)()), 0, 100);
+    }
+    if (Math.random() > mutationChanceThreshold) {
+      e.borderRadiusBR = clamp(e.borderRadiusBR + Math.round(random.normal(0, radiusRate)()), 0, 100);
+    }
+    if (Math.random() > mutationChanceThreshold) {
+      e.borderRadiusBL = clamp(e.borderRadiusBL + Math.round(random.normal(0, radiusRate)()), 0, 100);
     }
   });
   return newPainting;
