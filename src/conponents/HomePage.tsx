@@ -1,15 +1,16 @@
-import { Box, Button, Heading, Wrap, Text } from '@chakra-ui/react';
-import React, { useCallback, useEffect, useState } from 'react';
+import { Box, Button, Heading, HStack, Text, Wrap } from '@chakra-ui/react';
+import { range, sortBy, zip } from 'lodash';
+import React, { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { createRandomPainting, generatePaintingHtml, mutatePainting, Painting, usePaintingHtml } from '../painting';
-import CustomHtml from './CustomHtml';
-import { range, zip, sortBy } from 'lodash';
-import { renderHtml, renderHtmlBatch } from '../render';
+import { renderFile, renderHtml, renderHtmlBatch } from '../render';
 import CanvasImage from './CanvasImage';
 
 const generationSize = 1000;
 const topCount = 100;
 const descendatsCount = 8;
 const randomCount = 100;
+
+const paintingElementsCount = 2;
 
 function generateNextGeneration(paintings: Painting[]) {
   const next: Painting[] = [];
@@ -40,9 +41,11 @@ export function compareImages(data1: Uint8ClampedArray, data2: Uint8ClampedArray
 }
 
 export default function HomePage() {
-  const [originalPainting, setOriginalPainting] = useState(() => createRandomPainting(2));
+  const [originalPainting, setOriginalPainting] = useState(() => createRandomPainting(paintingElementsCount));
   const originalPaintingHtml = usePaintingHtml(originalPainting);
   const [originalPaintingImageData, setoriginalPaintingImageData] = useState<ImageData | null>(null);
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [iterationsLeft, setIterationsLeft] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -54,7 +57,7 @@ export default function HomePage() {
     const paintings =
       currentGeneration.length > 0
         ? generateNextGeneration(currentGeneration.slice(0, topCount))
-        : range(generationSize).map(() => createRandomPainting(2));
+        : range(generationSize).map(() => createRandomPainting(paintingElementsCount));
 
     const paintingsHtmls = paintings.map((p) => generatePaintingHtml(p));
 
@@ -81,10 +84,15 @@ export default function HomePage() {
 
   useEffect(() => {
     (async () => {
-      const imageData = await renderHtml(originalPaintingHtml);
-      setoriginalPaintingImageData(imageData);
+      if (selectedFile !== null) {
+        const imageData = await renderFile(selectedFile);
+        setoriginalPaintingImageData(imageData);
+      } else {
+        const imageData = await renderHtml(originalPaintingHtml);
+        setoriginalPaintingImageData(imageData);
+      }
     })();
-  }, [originalPaintingHtml]);
+  }, [originalPaintingHtml, selectedFile]);
 
   useEffect(() => {
     (async () => {
@@ -98,8 +106,14 @@ export default function HomePage() {
   }, [iterationsLeft, isGenerating, originalPaintingImageData, iterate, currentGeneration]);
 
   const handleRandomPaintingClick = () => {
-    const randomPainting = createRandomPainting(2);
+    setSelectedFile(null);
+    const randomPainting = createRandomPainting(paintingElementsCount);
     setOriginalPainting(randomPainting);
+  };
+
+  const handleFileSelect: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const file = e.target.files![0];
+    setSelectedFile(file);
   };
 
   const handleStartClick = async () => {
@@ -111,10 +125,16 @@ export default function HomePage() {
       <Heading as="h2" size="lg" marginBottom={8}>
         Mutations
       </Heading>
-      <Button onClick={handleRandomPaintingClick} marginBottom={4}>
-        Random Painting
-      </Button>
-      <CustomHtml html={originalPaintingHtml} marginBottom={4}></CustomHtml>
+
+      <HStack marginBottom={4}>
+        <Button as="label">
+          Select File<input type="file" onChange={handleFileSelect} style={{ display: 'none' }}></input>
+        </Button>
+        <Button onClick={handleRandomPaintingClick}>Random Painting</Button>
+      </HStack>
+      {originalPaintingImageData ? (
+        <CanvasImage imageData={originalPaintingImageData} marginBottom={4}></CanvasImage>
+      ) : null}
       <Button onClick={handleStartClick} marginBottom={4}>
         Train
       </Button>

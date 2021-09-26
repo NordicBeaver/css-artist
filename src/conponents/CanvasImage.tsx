@@ -5,7 +5,7 @@ import { PAINTING_HEIGHT, PAINTING_WIDTH } from '../constants';
 export interface CanvasImageProps {
   imageData: ImageData;
 }
-export default function CanvasImage({ imageData }: CanvasImageProps) {
+export default function CanvasImage({ imageData, ...boxProps }: CanvasImageProps & React.ComponentProps<typeof Box>) {
   const canvasRef = useCallback(
     (canvas: HTMLCanvasElement | null) => {
       if (canvas) {
@@ -17,7 +17,7 @@ export default function CanvasImage({ imageData }: CanvasImageProps) {
   );
 
   return (
-    <Box border="1px solid black">
+    <Box border="1px solid black" width={PAINTING_WIDTH} height={PAINTING_HEIGHT} {...boxProps}>
       <canvas ref={canvasRef} width={PAINTING_WIDTH} height={PAINTING_HEIGHT}></canvas>
     </Box>
   );

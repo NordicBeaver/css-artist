@@ -18,6 +18,17 @@ const readAsDataUrl = (svg: Blob) => {
   });
 };
 
+const readFileAsDataUrl = (file: File) => {
+  return new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', (e) => {
+      const svgDataUrl = e.target!.result as string;
+      resolve(svgDataUrl);
+    });
+    reader.readAsDataURL(file);
+  });
+};
+
 const drawImage = (dataUrl: string) => {
   return new Promise<HTMLImageElement>((resolve) => {
     const image = new Image();
@@ -71,4 +82,14 @@ export async function renderHtmlBatch(htmls: string[]) {
     data.push(imageData);
   }
   return data;
+}
+
+export async function renderFile(file: File) {
+  const dataUrl = await readFileAsDataUrl(file);
+  const image = await drawImage(dataUrl);
+
+  context.clearRect(0, 0, PAINTING_WIDTH, PAINTING_HEIGHT);
+  context.drawImage(image, 0, 0, image.width, image.height, 0, 0, PAINTING_WIDTH, PAINTING_HEIGHT);
+  const imageData = context.getImageData(0, 0, PAINTING_WIDTH, PAINTING_HEIGHT);
+  return imageData;
 }
