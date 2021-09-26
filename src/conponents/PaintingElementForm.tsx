@@ -19,6 +19,10 @@ export default function PaintingElementForm({ element, onChange }: PaintingEleme
     onChange?.({ ...element, posY: value });
   };
 
+  const handlePositionZSliderChange = (value: number) => {
+    onChange?.({ ...element, zIndex: value });
+  };
+
   const handleWidthSliderChange = (value: number) => {
     onChange?.({ ...element, width: value });
   };
@@ -43,7 +47,7 @@ export default function PaintingElementForm({ element, onChange }: PaintingEleme
     <VStack>
       <FormControl>
         <FormLabel>
-          Position (X: {element.posX}, Y: {element.posY})
+          Position (X: {element.posX}, Y: {element.posY}, Z: {element.zIndex})
         </FormLabel>
         <HStack spacing={5}>
           <Slider min={0} max={PAINTING_WIDTH} value={element.posX} onChange={handlePositionXSliderChange}>
@@ -53,6 +57,12 @@ export default function PaintingElementForm({ element, onChange }: PaintingEleme
             <SliderThumb></SliderThumb>
           </Slider>
           <Slider min={0} max={PAINTING_HEIGHT} value={element.posY} onChange={handlePositionYSliderChange}>
+            <SliderTrack>
+              <SliderFilledTrack></SliderFilledTrack>
+            </SliderTrack>
+            <SliderThumb></SliderThumb>
+          </Slider>
+          <Slider min={-100} max={100} value={element.zIndex} onChange={handlePositionZSliderChange}>
             <SliderTrack>
               <SliderFilledTrack></SliderFilledTrack>
             </SliderTrack>

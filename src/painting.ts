@@ -11,6 +11,7 @@ export interface PaintingElement {
   backgroundRed: number;
   backgroundGreen: number;
   backgroundBlue: number;
+  zIndex: number;
 }
 
 export interface Painting {
@@ -25,6 +26,7 @@ function createRandomElement() {
   const height = random.int(0, PAINTING_HEIGHT);
   const posX = clamp(midX - Math.floor(width / 2), 0, PAINTING_WIDTH);
   const posY = clamp(midY - Math.floor(height / 2), 0, PAINTING_HEIGHT);
+  const zIndex = random.int(-100, 100);
   const element: PaintingElement = {
     posX: posX,
     posY: posY,
@@ -33,6 +35,7 @@ function createRandomElement() {
     backgroundRed: Math.floor(Math.random() * 256),
     backgroundGreen: Math.floor(Math.random() * 256),
     backgroundBlue: Math.floor(Math.random() * 256),
+    zIndex: zIndex,
   };
   return element;
 }
@@ -54,6 +57,7 @@ function generateElementHtml(element: PaintingElement): string {
     `width: ${element.width}px;`,
     `height: ${element.height}px;`,
     `background-color: rgb(${element.backgroundRed}, ${element.backgroundGreen}, ${element.backgroundBlue});`,
+    `z-index: ${element.zIndex};`,
   ];
   const style = styleProperties.join(' ');
   const html = `<div style="${style}"></div>`;
@@ -85,6 +89,7 @@ export function usePaintingHtml(painting: Painting | null) {
 export function mutatePainting(painting: Painting) {
   const posRate = 20;
   const colorRate = 20;
+  const zIndexRate = 20;
   const mutationChanceThreshold = 0.9;
 
   const newPainting = cloneDeep(painting);
@@ -109,6 +114,9 @@ export function mutatePainting(painting: Painting) {
     }
     if (Math.random() > mutationChanceThreshold) {
       e.backgroundBlue = clamp(e.backgroundBlue + Math.round(random.normal(0, colorRate)()), 0, 255);
+    }
+    if (Math.random() > mutationChanceThreshold) {
+      e.zIndex = clamp(e.posY + Math.round(random.normal(0, zIndexRate)()), -100, 100);
     }
   });
   return newPainting;

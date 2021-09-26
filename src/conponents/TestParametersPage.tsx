@@ -1,21 +1,11 @@
 import { Box, Code, Grid, Heading } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import { Painting, usePaintingHtml } from '../painting';
+import { createRandomPainting, Painting, usePaintingHtml } from '../painting';
 import CustomHtml from './CustomHtml';
 import PaintingForm from './PaintingForm';
 
-function testPainting() {
-  const painting: Painting = {
-    elements: [
-      { posX: 10, posY: 10, height: 20, width: 20, backgroundRed: 255, backgroundGreen: 0, backgroundBlue: 0 },
-      { posX: 40, posY: 60, height: 50, width: 10, backgroundRed: 0, backgroundGreen: 255, backgroundBlue: 0 },
-    ],
-  };
-  return painting;
-}
-
 export default function TestParametersPage() {
-  const [painting, setPainting] = useState(testPainting);
+  const [painting, setPainting] = useState(() => createRandomPainting(2));
   const paintingHtml = usePaintingHtml(painting);
 
   const handlePaintingFormChange = (newPainting: Painting) => {
