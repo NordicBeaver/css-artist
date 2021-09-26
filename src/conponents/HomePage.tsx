@@ -1,4 +1,4 @@
-import { Box, Button, Heading, HStack, Text, Wrap } from '@chakra-ui/react';
+import { Box, Button, Code, Heading, HStack, Text, Wrap } from '@chakra-ui/react';
 import { range, sortBy, zip } from 'lodash';
 import React, { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { createRandomPainting, generatePaintingHtml, mutatePainting, Painting, usePaintingHtml } from '../painting';
@@ -139,11 +139,12 @@ export default function HomePage() {
         Train
       </Button>
       <Text>Iterations left: {iterationsLeft}</Text>
-      <Wrap>
+      <Wrap marginBottom={4}>
         {currentGenerationImageData.slice(0, 8).map((imageData) => (
           <CanvasImage imageData={imageData}></CanvasImage>
         ))}
       </Wrap>
+      {currentGeneration.length > 0 ? <Code>{generatePaintingHtml(currentGeneration[0])}</Code> : null}
     </Box>
   );
 }
