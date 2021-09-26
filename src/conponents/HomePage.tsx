@@ -13,10 +13,10 @@ import {
 import { renderFile, renderHtml, renderHtmlBatch } from '../render';
 import CanvasImage from './CanvasImage';
 
-const generationSize = 10000;
+const generationSize = 1000;
 const topCount = 10;
-const descendatsCount = 900;
-const randomCount = 1000;
+const descendatsCount = 89;
+const randomCount = 100;
 
 const paintingElementsCount = 10;
 
@@ -74,7 +74,7 @@ async function sortPaintingsByScore(paintings: Painting[], originalImageData: Im
   return paintingsRankedSorted;
 }
 
-async function selectTopPaintings(paintings: Painting[], originalImageData: ImageData) {
+async function selectTopPaintings(paintings: Painting[], prevPaintings: Painting[], originalImageData: ImageData) {
   const paintingsImageData = await getPaintingsImageData(paintings);
 
   const paintingsCompared = zip(paintings, paintingsImageData).map(([painting, imageData]) => ({
@@ -83,14 +83,21 @@ async function selectTopPaintings(paintings: Painting[], originalImageData: Imag
     diff: compareImages(originalImageData.data, imageData!.data),
   }));
 
-  const topPaintings: { painting: Painting; imageData: ImageData }[] = [];
+  const topPaintings: { painting: Painting; imageData: ImageData; diff: number; diffFromTop: number; score: number }[] =
+    [];
 
   for (let i = 0; i < topCount; i++) {
     const paintingsScored = paintingsCompared.map((paintingScored) => {
-      const diffFromTop = sum(
-        topPaintings.map((topPainting) => paintingsDiff(topPainting.painting, paintingScored.painting))
-      );
-      const score = diffFromTop > 0 ? (1 / paintingScored.diff) * diffFromTop : 1 / paintingScored.diff;
+      const diffFromPrevTop =
+        sum(
+          prevPaintings.slice(0, topCount).map((topPainting) => paintingsDiff(topPainting, paintingScored.painting))
+        ) / topCount;
+      const diffFromTop =
+        topPaintings.length > 0
+          ? sum(topPaintings.map((topPainting) => paintingsDiff(topPainting.painting, paintingScored.painting))) /
+            topPaintings.length
+          : 0;
+      const score = (1 / paintingScored.diff) * (1 + diffFromTop + diffFromPrevTop);
       return {
         painting: paintingScored.painting,
         imageData: paintingScored.imageData,
@@ -102,6 +109,8 @@ async function selectTopPaintings(paintings: Painting[], originalImageData: Imag
     const topPainting = sortBy(paintingsScored, (d) => -d.score)[0];
     topPaintings.push(topPainting);
   }
+
+  console.log(topPaintings[0].diff, topPaintings[0].score);
 
   return topPaintings;
 }
@@ -125,9 +134,7 @@ export default function HomePage() {
         ? generateNextGeneration(currentGeneration)
         : range(generationSize).map(() => createRandomPainting(paintingElementsCount));
 
-    await selectTopPaintings(paintings, originalImageData);
-
-    const topPaintings = await selectTopPaintings(paintings, originalImageData);
+    const topPaintings = await selectTopPaintings(paintings, currentGeneration, originalImageData);
 
     setCurrentGeneration(topPaintings.slice(0, topCount).map((d) => d.painting));
     setCurrentGenerationImageData(topPaintings.slice(0, 8).map((d) => d.imageData));
@@ -169,7 +176,7 @@ export default function HomePage() {
   };
 
   const handleStartClick = async () => {
-    setIterationsLeft(100);
+    setIterationsLeft(1000);
   };
 
   return (

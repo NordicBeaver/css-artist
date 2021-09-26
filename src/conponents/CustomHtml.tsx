@@ -1,5 +1,6 @@
 import { Box } from '@chakra-ui/layout';
 import React, { useCallback } from 'react';
+import { PAINTING_HEIGHT, PAINTING_WIDTH } from '../constants';
 
 export interface CustomHtmlProps {
   html: string;
@@ -18,8 +19,8 @@ export default function CustomHtml({ html, ...boxProps }: CustomHtmlProps & Reac
     <Box
       ref={rootRef}
       position="relative"
-      width={200}
-      height={200}
+      width={PAINTING_WIDTH}
+      height={PAINTING_HEIGHT}
       border="1px solid black"
       overflow="hidden"
       {...boxProps}

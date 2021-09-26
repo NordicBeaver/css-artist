@@ -146,16 +146,18 @@ export function mutatePainting(painting: Painting) {
 }
 
 function elementsDiff(element1: PaintingElement, element2: PaintingElement) {
-  let diff = 0;
-  diff += Math.abs(element1.posX - element2.posX);
-  diff += Math.abs(element1.posY - element2.posY);
-  diff += Math.abs(element1.width - element2.width);
-  diff += Math.abs(element1.height - element2.height);
-  diff += Math.abs(element1.backgroundRed - element2.backgroundRed);
-  diff += Math.abs(element1.backgroundGreen - element2.backgroundGreen);
-  diff += Math.abs(element1.backgroundBlue - element2.backgroundBlue);
-  diff += Math.abs(element1.zIndex - element2.zIndex);
-  return diff;
+  const diffs: number[] = [];
+
+  diffs.push(Math.abs(element1.posX - element2.posX) / PAINTING_WIDTH);
+  diffs.push(Math.abs(element1.posY - element2.posY) / PAINTING_HEIGHT);
+  diffs.push(Math.abs(element1.width - element2.width) / PAINTING_WIDTH);
+  diffs.push(Math.abs(element1.height - element2.height) / PAINTING_HEIGHT);
+  diffs.push(Math.abs(element1.backgroundRed - element2.backgroundRed) / 255);
+  diffs.push(Math.abs(element1.backgroundGreen - element2.backgroundGreen) / 255);
+  diffs.push(Math.abs(element1.backgroundBlue - element2.backgroundBlue) / 255);
+  diffs.push(Math.abs(element1.zIndex - element2.zIndex) / 200);
+
+  return sum(diffs) / diffs.length;
 }
 
 export function paintingsDiff(painting1: Painting, painting2: Painting) {
@@ -163,6 +165,6 @@ export function paintingsDiff(painting1: Painting, painting2: Painting) {
     sortBy(painting1.elements, (e) => e.zIndex),
     sortBy(painting2.elements, (e) => e.zIndex)
   ).map(([element1, element2]) => elementsDiff(element1!, element2!));
-  const diff = sum(diffs);
+  const diff = sum(diffs) / diffs.length;
   return diff;
 }
