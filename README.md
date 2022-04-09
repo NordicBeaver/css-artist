@@ -1,3 +1,9 @@
+# Description
+
+I tried to use machine learning to generate html+css representations of any images.
+
+More details: https://www.youtube.com/watch?v=TwT1EgbOHi8
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
